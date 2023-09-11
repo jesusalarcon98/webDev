@@ -24,19 +24,41 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const [dataCovid, setDataCovid] = useState([]);
+  const [dataCovidStates, setDataCovidStates] = useState([]);
+  const [dataCovidStatesDaily, setDataCovidStatesDaily] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedOption, setSelectedOption] = useState("");
 
   const classes = useStyles();
-  const [state, setState] = useState({
-    age: "",
-    name: "hai",
-  });
+
+  const llamarDatosEstado = (selectedOption) => {
+    axios
+      .get(
+        `https://api.covidtracking.com/v1/states/${selectedOption}/daily.json`
+      )
+      .then((response) => {
+        setDataCovid(response.data);
+
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("Data missed", error);
+        setIsLoading(false);
+      });
+  };
+
+  // Llama a la función dentro de un efecto cuando selectedOption cambia
+  useEffect(() => {
+    if (selectedOption) {
+      llamarDatosEstado(selectedOption);
+    }
+  }, [selectedOption]); // Dependencia: selectedOption
+
+  // Maneja el cambio de la opción seleccionada
   const handleChange = (event) => {
-    const name = event.target.name;
-    setState({
-      ...state,
-      [name]: event.target.value,
-    });
+    const selectedOption = event.target.value.toLowerCase();
+    selectedOption.toLowerCase();
+    setSelectedOption(selectedOption); // Actualiza el estado con la nueva opción
   };
 
   useEffect(() => {
@@ -44,6 +66,19 @@ function App() {
       .get("https://api.covidtracking.com/v1/us/daily.json")
       .then((response) => {
         setDataCovid(response.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("Data missed", error);
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("https://api.covidtracking.com/v1/states/current.json")
+      .then((response) => {
+        setDataCovidStates(response.data);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -61,17 +96,8 @@ function App() {
   }
 
   const labels = dataCovid.map((item) => {
-    /*   <ul>
-        {dataCovid.map((item, index) => {
-          const dateString = item.date.toString();
-          const formattedDate = `${dateString.substr(0, 4)}/${dateString.substr(4, 2)}/${dateString.substr(6, 2)}`;
-          return <li key={index}>{formattedDate}</li>;
-        })}
-      </ul> */
     const dateString = item.date.toString();
-    // Tu cadena de fecha
 
-    // Formatea la cadena en el formato deseado (AAAA/MM/DD)
     const formattedDate = `${dateString.substr(0, 4)}/${dateString.substr(
       4,
       2
@@ -79,8 +105,7 @@ function App() {
 
     return formattedDate;
   });
-  console.log(labels);
-  console.log(dataCovid.map((item) => item));
+  labels.reverse();
   const casesValue = dataCovid.map((item) => item.positive);
   const deathValue = dataCovid.map((item) => item.death);
 
@@ -112,24 +137,28 @@ function App() {
     },
   };
 
+  const estilo = {
+    display: "flex",
+  };
+
   return (
     <div className="App">
       <h1>Estadística de COVID en Estados Unidos.</h1>
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="age-native-simple">Age</InputLabel>
+      <FormControl className={classes.formControl} style={estilo}>
+        <InputLabel htmlFor="age-native-simple">
+          Seleccionar un estado.
+        </InputLabel>
         <Select
           native
-          value={state.age}
+          /*   value={state.age} */
           onChange={handleChange}
-          inputProps={{
-            name: "age",
-            id: "age-native-simple",
-          }}
         >
-          <option aria-label="None" value="" />
-          <option value={10}>Ten</option>
-          <option value={20}>Twenty</option>
-          <option value={30}>Thirty</option>
+          <option aria-label="None" value=""></option>
+          {dataCovidStates.map((data) => (
+            <option key={data.state} value={data.state} name={data.state}>
+              {data.state}
+            </option>
+          ))}
         </Select>
       </FormControl>
       <Line data={chartData} />

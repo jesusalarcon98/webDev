@@ -8,7 +8,9 @@ import FormControl from "@material-ui/core/FormControl";
 import Grid from "@material-ui/core/Grid";
 import InputLabel from "@material-ui/core/InputLabel";
 import { makeStyles } from "@material-ui/core/styles";
-
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
@@ -18,12 +20,52 @@ import DateFnsUtils from "@date-io/date-fns";
 Chart.register(CategoryScale);
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: "#ebf5f6",
+    minHeight: "100vh", // Mínimo alto de la ventana
+    display: "flex",
+    flexDirection: "column",
+  },
+  container: {
+    backgroundColor: "white",
+    padding: theme.spacing(3),
+    borderRadius: "8px",
+    marginTop: theme.spacing(2),
+  },
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
+    flex: 1,
+    width: "100%",
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
+  },
+  fullscreenContainer: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#F5F5F5", // Color de fondo azul claro
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden", // Oculta las barras de desplazamiento horizontal y vertical
+  },
+  title: {
+    fontSize: "24px",
+    fontWeight: "bold",
+    marginTop: "20px",
+    marginBottom: "20px", // Espacio entre el título y el gráfico
+    overflow: "hidden",
+    align: "center",
+  },
+  chartContainer: {
+    width: "85%", // El gráfico ocupa el 80% del ancho disponible
+    flexGrow: 1, // El gráfico crecerá para llenar el espacio restante
+    overflow: "hidden",
   },
 }));
 
@@ -53,6 +95,21 @@ function App() {
   };
 
   const classes = useStyles();
+
+  const llamarDatosGenerales = () => {
+    axios
+      .get("https://api.covidtracking.com/v1/us/daily.json")
+      .then((response) => {
+        setDataCovid(response.data);
+        setOriginalData(response.data);
+        setCambiarFechas(true);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("Data missed", error);
+        setIsLoading(false);
+      });
+  };
 
   const llamarDatosEstado = (selectedOption) => {
     axios
@@ -91,34 +148,25 @@ function App() {
     setFilteredDates(filteredDates); // Asigna el resultado al estado
   };
 
+  // Efecto para obtener datos generales y filtrar por fechas desde el principio
+  useEffect(() => {
+    llamarDatosGenerales();
+    filtrarDatos();
+  }, [initialDate, finalDate]); // Dependencias: initialDate, finalDate
+
   // Llama a la función dentro de un efecto cuando selectedOption cambia
   useEffect(() => {
     if (selectedOption) {
       llamarDatosEstado(selectedOption);
-      filtrarDatos(initialDate, finalDate);
+      filtrarDatos();
     }
-  }, [selectedOption, initialDate, finalDate]); // Dependencias: selectedOption, initialDate, finalDate
+  }, [selectedOption]); // Dependencia: selectedOption
 
   // Maneja el cambio de la opción seleccionada
   const handleChange = (event) => {
     const selectedOption = event.target.value.toLowerCase();
     setSelectedOption(selectedOption);
   };
-
-  useEffect(() => {
-    axios
-      .get("https://api.covidtracking.com/v1/us/daily.json")
-      .then((response) => {
-        setDataCovid(response.data);
-        setOriginalData(response.data);
-        setCambiarFechas(false);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log("Data missed", error);
-        setIsLoading(false);
-      });
-  }, []);
 
   useEffect(() => {
     axios
@@ -166,12 +214,12 @@ function App() {
       {
         label: "Enfermos",
         data: casesValue,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        backgroundColor: "#2196F3",
       },
       {
         label: "Muertes",
         data: deathValue,
-        backgroundColor: "rgba(255,0,0,1)",
+        backgroundColor: "#FF5722",
       },
     ],
     options: {
@@ -187,63 +235,116 @@ function App() {
     },
   };
 
-  const estilo = {
-    display: "flex",
-  };
-
   return (
-    <div className="App">
-      <h1>Estadística de COVID en Estados Unidos.</h1>
+    <div className={classes.fullscreenContainer}>
+      <div className={classes.title}>
+        Estadística de COVID en Estados Unidos
+      </div>
 
-      <FormControl className={classes.formControl} style={estilo}>
-        <InputLabel htmlFor="age-native-simple">
-          Seleccionar un estado.
-        </InputLabel>
-        <Select native onChange={handleChange}>
-          <option aria-label="None" value=""></option>
-          {dataCovidStates.map((data) => (
-            <option key={data.state} value={data.state} name={data.state}>
-              {data.state}
-            </option>
-          ))}
-        </Select>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <Grid container justifyContent="space-around">
-            <KeyboardDatePicker
-              margin="normal"
-              id="date-picker-dialog"
-              label="Date picker dialog"
-              format="MM/dd/yyyy"
-              minDate={minDate}
-              value={initialDate}
-              maxDate={maxDate}
-              onChange={(date) => {
-                handleInitialData(date);
-              }}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
-            <KeyboardDatePicker
-              margin="normal"
-              id="date-picker-dialog"
-              label="Date picker dialog"
-              format="MM/dd/yyyy"
-              value={finalDate}
-              minDate={initialDate}
-              maxDate={maxDate}
-              onChange={(date) => {
-                handleFinalData(date);
-              }}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
-          </Grid>
-        </MuiPickersUtilsProvider>
-      </FormControl>
-      <Line data={chartData} />
+      <div className={classes.chartContainer}>
+        <FormControl className={classes.formControl}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <Grid container justifyContent="space-around">
+              <InputLabel htmlFor="age-native-simple">
+                Seleccionar un estado.
+              </InputLabel>
+              <Select native onChange={handleChange}>
+                <option aria-label="None" value=""></option>
+                {dataCovidStates.map((data) => (
+                  <option key={data.state} value={data.state} name={data.state}>
+                    {data.state}
+                  </option>
+                ))}
+              </Select>
+              <KeyboardDatePicker
+                margin="normal"
+                id="date-picker-dialog"
+                label="Fecha inicial"
+                format="MM/dd/yyyy"
+                minDate={minDate}
+                value={initialDate}
+                maxDate={maxDate}
+                onChange={(date) => {
+                  handleInitialData(date);
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+              <KeyboardDatePicker
+                margin="normal"
+                id="date-picker-dialog"
+                label="Fecha final"
+                format="MM/dd/yyyy"
+                value={finalDate}
+                minDate={initialDate}
+                maxDate={maxDate}
+                onChange={(date) => {
+                  handleFinalData(date);
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </Grid>
+          </MuiPickersUtilsProvider>
+        </FormControl>
+        <Line data={chartData} className={classes.Line} />
+      </div>
     </div>
+    /*   <div className={classes.root}>
+      <CssBaseline />
+      <Container className={classes.container} maxWidth="md">
+        <FormControl className={classes.formControl}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <Grid container justifyContent="space-around">
+              <InputLabel htmlFor="age-native-simple">
+                Seleccionar un estado.
+              </InputLabel>
+              <Select native onChange={handleChange}>
+                <option aria-label="None" value=""></option>
+                {dataCovidStates.map((data) => (
+                  <option key={data.state} value={data.state} name={data.state}>
+                    {data.state}
+                  </option>
+                ))}
+              </Select>
+              <KeyboardDatePicker
+                margin="normal"
+                id="date-picker-dialog"
+                label="Fecha inicial"
+                format="MM/dd/yyyy"
+                minDate={minDate}
+                value={initialDate}
+                maxDate={maxDate}
+                onChange={(date) => {
+                  handleInitialData(date);
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+              <KeyboardDatePicker
+                margin="normal"
+                id="date-picker-dialog"
+                label="Fecha final"
+                format="MM/dd/yyyy"
+                value={finalDate}
+                minDate={initialDate}
+                maxDate={maxDate}
+                onChange={(date) => {
+                  handleFinalData(date);
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </Grid>
+          </MuiPickersUtilsProvider>
+        </FormControl>
+        <Line data={chartData} />
+      </Container>
+    </div> */
   );
 }
 

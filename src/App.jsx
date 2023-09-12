@@ -8,9 +8,6 @@ import FormControl from "@material-ui/core/FormControl";
 import Grid from "@material-ui/core/Grid";
 import InputLabel from "@material-ui/core/InputLabel";
 import { makeStyles } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Typography from "@material-ui/core/Typography";
-import Container from "@material-ui/core/Container";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
@@ -63,9 +60,9 @@ const useStyles = makeStyles((theme) => ({
     align: "center",
   },
   chartContainer: {
-    width: "85%", // El gráfico ocupa el 80% del ancho disponible
+    width: "70%", // El gráfico ocupa el 80% del ancho disponible
     flexGrow: 1, // El gráfico crecerá para llenar el espacio restante
-    overflow: "hidden",
+    overflowX: "hidden",
   },
 }));
 
@@ -245,10 +242,14 @@ function App() {
         <FormControl className={classes.formControl}>
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid container justifyContent="space-around">
-              <InputLabel htmlFor="age-native-simple">
+              <InputLabel style={{ marginBottom: "8px" }}>
                 Seleccionar un estado.
               </InputLabel>
-              <Select native onChange={handleChange}>
+              <Select
+                native
+                onChange={handleChange}
+                style={{ marginBottom: "8px", flexGrow: ".5" }}
+              >
                 <option aria-label="None" value=""></option>
                 {dataCovidStates.map((data) => (
                   <option key={data.state} value={data.state} name={data.state}>
@@ -292,59 +293,6 @@ function App() {
         <Line data={chartData} className={classes.Line} />
       </div>
     </div>
-    /*   <div className={classes.root}>
-      <CssBaseline />
-      <Container className={classes.container} maxWidth="md">
-        <FormControl className={classes.formControl}>
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <Grid container justifyContent="space-around">
-              <InputLabel htmlFor="age-native-simple">
-                Seleccionar un estado.
-              </InputLabel>
-              <Select native onChange={handleChange}>
-                <option aria-label="None" value=""></option>
-                {dataCovidStates.map((data) => (
-                  <option key={data.state} value={data.state} name={data.state}>
-                    {data.state}
-                  </option>
-                ))}
-              </Select>
-              <KeyboardDatePicker
-                margin="normal"
-                id="date-picker-dialog"
-                label="Fecha inicial"
-                format="MM/dd/yyyy"
-                minDate={minDate}
-                value={initialDate}
-                maxDate={maxDate}
-                onChange={(date) => {
-                  handleInitialData(date);
-                }}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-              <KeyboardDatePicker
-                margin="normal"
-                id="date-picker-dialog"
-                label="Fecha final"
-                format="MM/dd/yyyy"
-                value={finalDate}
-                minDate={initialDate}
-                maxDate={maxDate}
-                onChange={(date) => {
-                  handleFinalData(date);
-                }}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-            </Grid>
-          </MuiPickersUtilsProvider>
-        </FormControl>
-        <Line data={chartData} />
-      </Container>
-    </div> */
   );
 }
 

@@ -13,6 +13,7 @@ import useStyles from "./Styles/styles";
 import InputChart from "./components/InputChart";
 import LineChart from "./components/LineChart";
 import SelectState from "./components/SelectState";
+import PickerDate from "./components/PickerDate";
 
 Chart.register(CategoryScale);
 
@@ -34,6 +35,7 @@ function App() {
   const maxDate = new Date("2021-03-06T21:11:54");
 
   const handleInitialData = (date) => {
+    console.log("entra");
     setInitialDate(date);
   };
   const handleFinalData = (date) => {
@@ -142,21 +144,13 @@ function App() {
                 filtrarDatos={filtrarDatos}
               />
 
-              <KeyboardDatePicker
-                margin="normal"
-                id="date-picker-dialog"
-                label="Fecha inicial"
-                format="MM/dd/yyyy"
+              <PickerDate
                 minDate={minDate}
                 value={initialDate}
                 maxDate={finalDate}
-                onChange={(date) => {
-                  handleInitialData(date);
-                }}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
+                onChange={handleInitialData}
               />
+
               <KeyboardDatePicker
                 margin="normal"
                 id="date-picker-dialog"

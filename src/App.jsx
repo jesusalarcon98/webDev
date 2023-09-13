@@ -150,21 +150,11 @@ function App() {
                 maxDate={finalDate}
                 onChange={handleInitialData}
               />
-
-              <KeyboardDatePicker
-                margin="normal"
-                id="date-picker-dialog"
-                label="Fecha final"
-                format="MM/dd/yyyy"
-                value={finalDate}
+              <PickerDate
                 minDate={initialDate}
+                value={finalDate}
                 maxDate={maxDate}
-                onChange={(date) => {
-                  handleFinalData(date);
-                }}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
+                onChange={handleFinalData}
               />
             </Grid>
           </MuiPickersUtilsProvider>

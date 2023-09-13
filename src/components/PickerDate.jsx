@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
 const PickerDate = ({ minDate, value, maxDate, onChange }) => {

@@ -1,25 +1,35 @@
-import React from "react";
 import { Line } from "react-chartjs-2";
 
-function LineChart({ chartData }) {
-  console.log("HOla mundo", chartData);
+function LineChart({
+  CambiarFechas,
+  filterDates,
+  nextList,
+  casesValue,
+  deathValue,
+}) {
+  const chartData = {
+    type: "Line",
+    labels: CambiarFechas ? filterDates : nextList,
+    datasets: [
+      {
+        label: "Enfermos",
+        data: casesValue,
+        backgroundColor: "#2196F3",
+      },
+      {
+        label: "Muertes",
+        data: deathValue,
+        backgroundColor: "#FF5722",
+      },
+    ],
+    options: {
+      responsive: true,
+    },
+  };
+
   return (
-    <div className="chart-container">
-      <h2 style={{ textAlign: "center" }}>Line Chart</h2>
-      <Line
-        data={chartData}
-        options={{
-          plugins: {
-            title: {
-              display: true,
-              text: "Users Gained between 2016-2020",
-            },
-            legend: {
-              display: false,
-            },
-          },
-        }}
-      />
+    <div>
+      <Line data={chartData} />
     </div>
   );
 }

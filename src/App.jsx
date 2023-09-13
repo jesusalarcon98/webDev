@@ -75,6 +75,7 @@ function App() {
     DATOS_FILTRADOS(originalData, initialDate, finalDate, setFilteredDates);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDate, finalDate]);
+
   if (isLoading) {
     return (
       <div className="App">
@@ -133,8 +134,7 @@ function App() {
           CambiarFechas={CambiarFechas}
           filterDates={filterDates}
           nextList={nextList}
-          casesValue={casesValue}
-          deathValue={deathValue}
+          dataCovid={dataCovid}
         />
       </div>
     </div>

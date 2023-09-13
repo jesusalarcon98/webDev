@@ -1,4 +1,5 @@
 import { Line } from "react-chartjs-2";
+import { REVERSEDATA } from "../logic/labels";
 
 function LineChart({
   CambiarFechas,
@@ -7,9 +8,10 @@ function LineChart({
   casesValue,
   deathValue,
 }) {
+  const result = REVERSEDATA(filterDates);
   const chartData = {
     type: "Line",
-    labels: CambiarFechas ? filterDates : nextList,
+    labels: CambiarFechas ? result : nextList,
     datasets: [
       {
         label: "Enfermos",

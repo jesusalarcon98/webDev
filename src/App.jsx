@@ -10,10 +10,10 @@ import useStyles from "./Styles/styles";
 import LineChart from "./components/LineChart";
 import SelectState from "./components/SelectState";
 import PickerDate from "./components/PickerDate";
-import ContainerDates from "./components/ContainerDates";
+import InputChart from "./components/InputChart";
 import { minDate, maxDate } from "./constants";
 import { DATOS_FILTRADOS, FORMATTEDLABELS, REVERSEDATA } from "./logic/labels";
-
+import { llamarDatosGenerales } from "./logic/effects";
 Chart.register(CategoryScale);
 
 function App() {
@@ -29,29 +29,7 @@ function App() {
   const [filterDates, setFilteredDates] = useState([]);
   const [CambiarFechas, setCambiarFechas] = useState(false);
 
-  const handleInitialData = (date) => {
-    setInitialDate(date);
-  };
-  const handleFinalData = (date) => {
-    setFinalDate(date);
-  };
-
   const classes = useStyles();
-
-  const llamarDatosGenerales = () => {
-    axios
-      .get("https://api.covidtracking.com/v1/us/daily.json")
-      .then((response) => {
-        setDataCovid(response.data);
-        setOriginalData(response.data);
-        setCambiarFechas(true);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log("Data missed", error);
-        setIsLoading(false);
-      });
-  };
 
   const llamarDatosEstado = (selectedOption) => {
     axios
@@ -71,7 +49,12 @@ function App() {
   };
 
   useEffect(() => {
-    llamarDatosGenerales();
+    llamarDatosGenerales(
+      setDataCovid,
+      setOriginalData,
+      setCambiarFechas,
+      setIsLoading
+    );
     DATOS_FILTRADOS(originalData, initialDate, finalDate, setFilteredDates);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDate, finalDate]);
@@ -87,9 +70,6 @@ function App() {
   const labels = FORMATTEDLABELS(dataCovid);
   const nextList = REVERSEDATA(labels);
 
-  const casesValue = dataCovid.map((item) => item.positive);
-  const deathValue = dataCovid.map((item) => item.death);
-
   return (
     <div className={classes.fullscreenContainer}>
       <div className={classes.title}>
@@ -97,11 +77,10 @@ function App() {
       </div>
 
       <div className={classes.chartContainer}>
-        <ContainerDates />
         <FormControl className={classes.formControl}>
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid container justifyContent="space-around">
-              {/*     <InputChart /> */}
+              <InputChart />
               <SelectState
                 setCambiarFechas={setCambiarFechas}
                 llamarDatosEstado={llamarDatosEstado}
@@ -119,13 +98,13 @@ function App() {
                 minDate={minDate}
                 value={initialDate}
                 maxDate={finalDate}
-                onChange={handleInitialData}
+                setDates={setInitialDate}
               />
               <PickerDate
                 minDate={initialDate}
                 value={finalDate}
                 maxDate={maxDate}
-                onChange={handleFinalData}
+                setDates={setFinalDate}
               />
             </Grid>
           </MuiPickersUtilsProvider>

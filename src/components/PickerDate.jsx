@@ -1,6 +1,10 @@
 import { KeyboardDatePicker } from "@material-ui/pickers";
 
-const PickerDate = ({ minDate, value, maxDate, onChange }) => {
+const PickerDate = ({ minDate, value, maxDate, setDates }) => {
+  const handleDate = (date) => {
+    setDates(date);
+  };
+
   return (
     <KeyboardDatePicker
       margin="normal"
@@ -11,7 +15,7 @@ const PickerDate = ({ minDate, value, maxDate, onChange }) => {
       value={value}
       maxDate={maxDate}
       onChange={(date) => {
-        onChange(date);
+        handleDate(date);
       }}
       KeyboardButtonProps={{
         "aria-label": "change date",
